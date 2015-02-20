@@ -6,7 +6,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [[NSUserDefaults standardUserDefaults] setObject:@"test" forKey:@"fg_test"];
-    [[NSUserDefaults standardUserDefaults] setObject:@{@"test":@"val",@"something":@"val2"} forKey:@"fg_dict_test"];
+    [[NSUserDefaults standardUserDefaults] setObject:@{@"test":@"val",@"something":@"val2",@"dict":@{@"k":@"v"},@"arr":@[@1,@2,[NSDate date],@[@1,@2]]} forKey:@"fg_dict_test"];
     [[NSUserDefaults standardUserDefaults] synchronize];
 
     // Override point for customization after application launch.

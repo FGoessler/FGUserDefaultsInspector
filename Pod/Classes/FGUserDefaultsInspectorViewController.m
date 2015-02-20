@@ -52,8 +52,8 @@
     id key = self.dictionaryRepresentation.allKeys[(NSUInteger) indexPath.row];
     id value = self.dictionaryRepresentation[key];
 
-    cell.textLabel.text = [[value description] stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
-    cell.detailTextLabel.text = [[key description] stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
+    cell.textLabel.text = [self _cleanDescription:[value description]];
+    cell.detailTextLabel.text = [self _cleanDescription:[key description]];
 
     return cell;
 }
@@ -73,6 +73,18 @@
     } else {
         self.showAllKeys = ! self.showAllKeys;
         [self _updateList];
+    }
+}
+
+#pragma mark helper methods
+
+- (NSString*)_cleanDescription:(id)object {
+    if(object == nil) {
+        return @"(nil)";
+    } else {
+        NSString *str = [object description];
+        NSRegularExpression *regEx = [NSRegularExpression regularExpressionWithPattern:@"\\s+" options:0 error:nil];
+        return [regEx stringByReplacingMatchesInString:str options:0 range:NSMakeRange(0, str.length) withTemplate:@" "];
     }
 }
 
