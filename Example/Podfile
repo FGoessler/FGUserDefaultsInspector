@@ -1,0 +1,12 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
+target 'FGUserDefaultsInspector', :exclusive => true do
+  pod "FGUserDefaultsInspector", :path => "../"
+end
+
+target 'Tests', :exclusive => true do
+  pod "FGUserDefaultsInspector", :path => "../"
+
+  pod 'Specta'
+  pod 'Expecta'
+end
