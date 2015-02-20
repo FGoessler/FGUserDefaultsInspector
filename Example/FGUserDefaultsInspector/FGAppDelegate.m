@@ -1,10 +1,3 @@
-//
-//  FGAppDelegate.m
-//  FGUserDefaultsInspector
-//
-//  Created by CocoaPods on 02/20/2015.
-//  Copyright (c) 2014 Goessler, Florian. All rights reserved.
-//
 
 #import "FGAppDelegate.h"
 
@@ -12,6 +5,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [[NSUserDefaults standardUserDefaults] setObject:@"test" forKey:@"fg_test"];
+    [[NSUserDefaults standardUserDefaults] setObject:@{@"test":@"val",@"something":@"val2"} forKey:@"fg_dict_test"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+
     // Override point for customization after application launch.
     return YES;
 }
