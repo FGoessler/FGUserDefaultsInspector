@@ -86,11 +86,11 @@
 #pragma mark UISearchController stuff
 
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController {
-    NSString *searchString = [self.searchController.searchBar text];
+    NSString *searchString = [[self.searchController.searchBar text] lowercaseString];
 
     NSMutableDictionary *filtered = [[NSMutableDictionary alloc] init];
     for(id key in self.dictionaryRepresentation) {
-        if(([key respondsToSelector:@selector(containsString:)] && [key containsString:searchString]) || [searchString isEqualToString:@""]) {
+        if(([key respondsToSelector:@selector(containsString:)] && [[key lowercaseString] containsString:searchString]) || [searchString isEqualToString:@""]) {
             filtered[key] = self.dictionaryRepresentation[key];
         }
     }
