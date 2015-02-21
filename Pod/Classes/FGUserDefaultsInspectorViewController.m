@@ -4,7 +4,7 @@
 #import "FGUserDefaultsFormatter.h"
 
 
-@interface FGUserDefaultsInspectorViewController () <UIActionSheetDelegate, UISearchResultsUpdating, UISearchControllerDelegate>
+@interface FGUserDefaultsInspectorViewController () <UIActionSheetDelegate, UISearchResultsUpdating, UISearchControllerDelegate, FGUserDefaultsEditViewControllerDelegate>
 @property(nonatomic, strong) NSDictionary *dictionaryRepresentation;
 @property(nonatomic, strong) NSDictionary *filteredDictionaryRepresentation;
 @property(nonatomic) BOOL showAllKeys;
@@ -79,7 +79,8 @@
     id key = self.filteredDictionaryRepresentation.allKeys[(NSUInteger) indexPath.row];
     id value = self.filteredDictionaryRepresentation[key];
     FGUserDefaultsEditViewController *editVC = [[FGUserDefaultsEditViewController alloc] initWithKey:key value:value];
-    [self.navigationController pushViewController:editVC animated:YES];
+    editVC.delegate = self;
+    [self presentViewController:[[UINavigationController alloc] initWithRootViewController:editVC] animated:YES completion:nil];
 }
 
 #pragma mark UISearchController stuff
@@ -112,6 +113,13 @@
         self.showAllKeys = ! self.showAllKeys;
         [self _updateList];
     }
+}
+
+#pragma mark FGUserDefaultsEditViewControllerDelegate
+
+- (void)defaultsEditVC:(FGUserDefaultsEditViewController *)editVC requestedSaveOf:(id)object atKey:(id)key {
+    [[NSUserDefaults standardUserDefaults] setObject:object forKey:key];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 @end
