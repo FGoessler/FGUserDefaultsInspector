@@ -46,7 +46,6 @@
         self.valueSwitch = [[UISwitch alloc] init];
         self.valueSwitch.on = [_value boolValue];
         [self.contentView addSubview:self.valueSwitch];
-        self.valueSwitch.frame = CGRectMake(15, 6, self.valueSwitch.bounds.size.width, self.valueSwitch.bounds.size.height);
     } else if([_value isKindOfClass:[NSDate class]]) {
         self.datePicker = [[UIDatePicker alloc] init];
         self.datePicker.date = _value;
@@ -55,15 +54,20 @@
         self.textField = [[UITextField alloc] init];
         self.textField.text = _value;
         [self.contentView addSubview:self.textField];
-        self.textField.frame = CGRectMake(15, 0, self.contentView.frame.size.width - 30, self.contentView.frame.size.height);
     } else if([_value isKindOfClass:[NSNumber class]]) {
         self.textField = [[UITextField alloc] init];
         self.textField.text = [_value stringValue];
         [self.contentView addSubview:self.textField];
-        self.textField.frame = CGRectMake(15, 0, self.contentView.frame.size.width - 30, self.contentView.frame.size.height);
     } else {
         self.textLabel.text = [FGUserDefaultsFormatter descriptionForObject:_value];
     }
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    self.valueSwitch.frame = CGRectMake(15, 6, self.valueSwitch.bounds.size.width, self.valueSwitch.bounds.size.height);
+    self.textField.frame = CGRectMake(15, 0, self.contentView.frame.size.width - 30, self.contentView.frame.size.height);
 }
 
 @end
