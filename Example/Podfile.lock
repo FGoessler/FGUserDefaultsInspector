@@ -14,7 +14,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Expecta: ee641011fe10aa1855d487b40e4976dac50ec342
-  FGUserDefaultsInspector: fd3c4a7c52ddde940aec6005318f69e3583f573e
+  FGUserDefaultsInspector: 30ecc2e6efcfa09bf424846e506fa39630348799
   Specta: 698a58ffa5ec948327d3b92eab50ca58d7f4fbe8
 
 COCOAPODS: 0.35.0

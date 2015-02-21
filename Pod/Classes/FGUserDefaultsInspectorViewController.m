@@ -1,6 +1,7 @@
 #import "FGUserDefaultsInspectorViewController.h"
 #import "FGUserDefaultsInspectorCell.h"
 #import "FGUserDefaultsEditViewController.h"
+#import "FGUserDefaultsFormatter.h"
 
 
 @interface FGUserDefaultsInspectorViewController () <UIActionSheetDelegate>
@@ -52,8 +53,8 @@
     id key = self.dictionaryRepresentation.allKeys[(NSUInteger) indexPath.row];
     id value = self.dictionaryRepresentation[key];
 
-    cell.textLabel.text = [self _cleanDescription:[value description]];
-    cell.detailTextLabel.text = [self _cleanDescription:[key description]];
+    cell.textLabel.text = [FGUserDefaultsFormatter descriptionForObject:value];
+    cell.detailTextLabel.text = [@"Key: " stringByAppendingString:[FGUserDefaultsFormatter descriptionForObject:key]];
 
     return cell;
 }
@@ -73,18 +74,6 @@
     } else {
         self.showAllKeys = ! self.showAllKeys;
         [self _updateList];
-    }
-}
-
-#pragma mark helper methods
-
-- (NSString*)_cleanDescription:(id)object {
-    if(object == nil) {
-        return @"(nil)";
-    } else {
-        NSString *str = [object description];
-        NSRegularExpression *regEx = [NSRegularExpression regularExpressionWithPattern:@"\\s+" options:0 error:nil];
-        return [regEx stringByReplacingMatchesInString:str options:0 range:NSMakeRange(0, str.length) withTemplate:@" "];
     }
 }
 

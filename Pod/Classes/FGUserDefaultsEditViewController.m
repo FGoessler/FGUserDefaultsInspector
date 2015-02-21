@@ -1,5 +1,6 @@
 #import "FGUserDefaultsEditViewController.h"
 #import "FGUserDefaultsInspectorCell.h"
+#import "FGUserDefaultsFormatter.h"
 
 
 @interface FGUserDefaultsEditViewController ()
@@ -52,9 +53,9 @@
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
     if(section == 0 && self.key) {
-        return [self _cleanType:self.key];
+        return [FGUserDefaultsFormatter typeStringForObject:self.key];
     } else if(self.value) {
-        return [self _cleanType:self.value];
+        return [FGUserDefaultsFormatter typeStringForObject:self.value];
     } else {
         return nil;
     }
@@ -70,15 +71,16 @@
 
         if([self.value isKindOfClass:[NSArray class]]) {
             id value = self.value[(NSUInteger) indexPath.row];
-            cell.textLabel.text = [self _cleanDescription:value];
+            cell.textLabel.text = [FGUserDefaultsFormatter descriptionForObject:value];
+            cell.detailTextLabel.text = nil;
         } else if([self.value isKindOfClass:[NSDictionary class]]) {
             NSDictionary *dictionary = self.value;
             id key = dictionary.allKeys[(NSUInteger) indexPath.row];
             id value = dictionary[key];
-            cell.textLabel.text = [self _cleanDescription:value];
-            cell.detailTextLabel.text = [self _cleanDescription:key];
+            cell.textLabel.text = [FGUserDefaultsFormatter descriptionForObject:value];
+            cell.detailTextLabel.text = [@"Key: " stringByAppendingString:[FGUserDefaultsFormatter descriptionForObject:key]];
         } else {
-            cell.textLabel.text = [self _cleanDescription:self.value];
+            cell.textLabel.text = [FGUserDefaultsFormatter descriptionForObject:self.value];
             cell.detailTextLabel.text = nil;
         }
     }
@@ -100,20 +102,6 @@
             [self.navigationController pushViewController:recursiveEditVC animated:YES];
         }
     }
-}
-
-- (NSString*)_cleanDescription:(id)object {
-    if(object == nil) {
-        return @"(nil)";
-    } else {
-        NSString *str = [object description];
-        NSRegularExpression *regEx = [NSRegularExpression regularExpressionWithPattern:@"\\s+" options:0 error:nil];
-        return [regEx stringByReplacingMatchesInString:str options:0 range:NSMakeRange(0, str.length) withTemplate:@" "];
-    }
-}
-
-- (NSString*)_cleanType:(id)object {
-    return [@"Type: " stringByAppendingString:[[object class] description]];
 }
 
 @end
