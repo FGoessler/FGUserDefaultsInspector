@@ -71,6 +71,8 @@ static const float kDatePickerCellHeight = 200.0f;
     }
 }
 
+#pragma mark user interaction via navigation bar buttons
+
 - (void)save {
     if(self.valueEditCell) self.value = self.valueEditCell.value;
     [self.delegate defaultsEditVC:self requestedSaveOf:self.value atKey:self.key];
@@ -80,6 +82,8 @@ static const float kDatePickerCellHeight = 200.0f;
 - (void)cancel {
     [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
+
+#pragma mark FGUserDefaultsEditViewControllerDelegate
 
 - (void)defaultsEditVC:(FGUserDefaultsEditViewController *)editVC requestedSaveOf:(id)object atKey:(id)key {
     self.value[key] = object;
