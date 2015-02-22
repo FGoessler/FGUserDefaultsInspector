@@ -5,14 +5,34 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    [[NSUserDefaults standardUserDefaults] setObject:@"test" forKey:@"fg_test"];
-    [[NSUserDefaults standardUserDefaults] setObject:@{@"test":@"val",@"something":@"val2",@"dict":@{@"k":@"v"},@"arr":@[@YES,@NO,[NSDate date],@[@1,@2]]} forKey:@"fg_dict_test"];
+    [[NSUserDefaults standardUserDefaults] setObject:@"A string value" forKey:@"test.someString"];
+    [[NSUserDefaults standardUserDefaults] setObject:@15 forKey:@"test.someInteger"];
+    [[NSUserDefaults standardUserDefaults] setObject:@37.3456f forKey:@"test.someFloat"];
+    [[NSUserDefaults standardUserDefaults] setObject:[NSDate date] forKey:@"test.someDate"];
+    [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:@"test.someBool"];
+    [[NSUserDefaults standardUserDefaults] setObject:@{
+            @"a" : @"A nested string value",
+            @"b" : @42,
+            @"c" : @NO,
+            @"d" : [NSDate date],
+            @"nested Array" : @[@1, @2, @3],
+            @"nested Dictionary" : @{@"str1" : @1, @"str2" : @2, @"str3" : @3}
+    }                                         forKey:@"test.someDictionary"];
+    [[NSUserDefaults standardUserDefaults] setObject:@[
+            @"A nested string value",
+            @42,
+            @NO,
+            [NSDate date],
+            @[@1, @2, @3],
+            @{@"str1" : @1, @"str2" : @2, @"str3" : @3}
+    ]                                         forKey:@"test.someArray"];
+
     [[NSUserDefaults standardUserDefaults] synchronize];
 
     // Override point for customization after application launch.
     return YES;
 }
-							
+
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
