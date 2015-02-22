@@ -99,7 +99,7 @@ static const float kDatePickerCellHeight = 200.0f;
     if ([self _isKeySection:section]) {
         return 1;
     } else {
-        if([self.value isKindOfClass:[NSArray class]] || [self.value isKindOfClass:[NSDictionary class]]) {
+        if ([self _displaysArrayValues] || [self _displaysDictionaryValues]) {
             return [self.value count];
         } else {
             return 1;
@@ -111,7 +111,7 @@ static const float kDatePickerCellHeight = 200.0f;
     if ([self _isKeySection:section]) {
         return @"Key";
     } else {
-        return @"Value(s)";
+        return [self.value respondsToSelector:@selector(count)] && [self.value count] > 1 ? @"Values" : @"Value";
     }
 }
 
@@ -135,10 +135,10 @@ static const float kDatePickerCellHeight = 200.0f;
         cell.textLabel.text = nil;
         cell.detailTextLabel.text = nil;
 
-        if([self.value isKindOfClass:[NSArray class]]) {
+        if ([self _displaysArrayValues]) {
             id value = self.value[(NSUInteger) indexPath.row];
             cell.textLabel.text = [FGUserDefaultsFormatter descriptionForObject:value];
-        } else if([self.value isKindOfClass:[NSDictionary class]]) {
+        } else if ([self _displaysDictionaryValues]) {
             NSDictionary *dictionary = self.value;
             id key = dictionary.allKeys[(NSUInteger) indexPath.row];
             id value = dictionary[key];
@@ -165,12 +165,12 @@ static const float kDatePickerCellHeight = 200.0f;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if ([self _isValuesSection:indexPath.section]) {
         NSUInteger index = (NSUInteger) indexPath.row;
-        if([self.value isKindOfClass:[NSArray class]]) {
+        if ([self _displaysArrayValues]) {
             id value = self.value[index];
             FGUserDefaultsEditViewController *recursiveEditVC = [[FGUserDefaultsEditViewController alloc] initWithIndex:index value:[value copy]];
             recursiveEditVC.delegate = self;
             [self.navigationController pushViewController:recursiveEditVC animated:YES];
-        } else if([self.value isKindOfClass:[NSDictionary class]]) {
+        } else if ([self _displaysDictionaryValues]) {
             NSDictionary *dictionary = self.value;
             id key = dictionary.allKeys[index];
             id value = dictionary[key];
@@ -189,6 +189,14 @@ static const float kDatePickerCellHeight = 200.0f;
 
 - (BOOL)_isValuesSection:(NSInteger)section {
     return section == 1 || (section == 0 && !self.key);
+}
+
+- (BOOL)_displaysArrayValues {
+    return [self.value isKindOfClass:[NSArray class]];
+}
+
+- (BOOL)_displaysDictionaryValues {
+    return [self.value isKindOfClass:[NSDictionary class]];
 }
 
 @end
