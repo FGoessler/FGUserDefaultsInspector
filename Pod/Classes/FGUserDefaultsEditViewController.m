@@ -42,6 +42,10 @@ static const float kDatePickerCellHeight = 200.0f;
 - (void)viewDidLoad {
     [super viewDidLoad];
 
+    if ([self _displaysArrayValues] || [self _displaysDictionaryValues]) {
+        self.value = [self.value mutableCopy];
+    }
+
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"keyCell"];
     [self.tableView registerClass:[FGUserDefaultsInspectorCell class] forCellReuseIdentifier:@"valueCell"];
     [self.tableView registerClass:[FGUserDefaultsInspectorEditValueCell class] forCellReuseIdentifier:@"editValueCell"];
@@ -78,13 +82,11 @@ static const float kDatePickerCellHeight = 200.0f;
 }
 
 - (void)defaultsEditVC:(FGUserDefaultsEditViewController *)editVC requestedSaveOf:(id)object atKey:(id)key {
-    self.value = [self.value mutableCopy];
     self.value[key] = object;
     [self.tableView reloadData];
 }
 
 - (void)defaultsEditVC:(FGUserDefaultsEditViewController *)editVC requestedSaveOf:(id)object atIndex:(NSUInteger)index {
-    self.value = [self.value mutableCopy];
     self.value[index] = object;
     [self.tableView reloadData];
 }
@@ -178,6 +180,22 @@ static const float kDatePickerCellHeight = 200.0f;
             recursiveEditVC.delegate = self;
             [self.navigationController pushViewController:recursiveEditVC animated:YES];
         }
+    }
+}
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    return [self _isValuesSection:indexPath.section] && ([self _displaysArrayValues] || [self _displaysDictionaryValues]);
+}
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (editingStyle == UITableViewCellEditingStyleDelete) {
+        NSUInteger index = (NSUInteger) indexPath.row;
+        if ([self _displaysArrayValues]) {
+            [self.value removeObjectAtIndex:index];
+        } else if ([self _displaysDictionaryValues]) {
+            [self.value removeObjectForKey:[self.value allKeys][index]];
+        }
+        [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     }
 }
 
