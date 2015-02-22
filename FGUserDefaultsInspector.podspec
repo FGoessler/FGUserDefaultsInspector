@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = "FGUserDefaultsInspector"
   s.version          = "0.1.0"
-  s.summary          = "Easily inspect the contents of your NSUserDefaults in your app at runtime."
+  s.summary          = "Explore and edit values inside your NSUserDefaults without the need of a debugger."
   s.homepage         = "https://github.com/FGoessler/FGUserDefaultsInspector"
   s.license          = 'MIT'
   s.author           = { "Goessler, Florian" => "florian.goessler@immobilienscout24.de" }
