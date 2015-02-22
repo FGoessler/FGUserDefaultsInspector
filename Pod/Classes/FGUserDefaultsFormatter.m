@@ -26,6 +26,8 @@
         }
         [dictionaryString appendString:@"}"];
         return dictionaryString;
+    } else if ([object isKindOfClass:[NSDate class]]) {
+        return [NSDateFormatter localizedStringFromDate:object dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterLongStyle];
     } else {
         NSString *str = [object description];
         NSRegularExpression *regEx = [NSRegularExpression regularExpressionWithPattern:@"\\s+" options:0 error:nil];
