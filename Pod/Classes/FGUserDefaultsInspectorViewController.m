@@ -54,7 +54,7 @@
     NSString *otherButtonTitle = self.showAllKeys ? @"Show only App Domain" : @"Show All";
     UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Abbrechen"
                                          destructiveButtonTitle:@"Delete App's UserDefaults"
-                                              otherButtonTitles:otherButtonTitle, @"Export", nil];
+                                              otherButtonTitles:otherButtonTitle, @"New Entry", @"Export", nil];
     [sheet showFromBarButtonItem:sender animated:YES];
 }
 
@@ -125,6 +125,10 @@
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
     if([actionSheet destructiveButtonIndex] == buttonIndex) {
         [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
+    } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"New Entry"]) {
+        FGUserDefaultsEditViewController *editVC = [[FGUserDefaultsEditViewController alloc] initToCreateNewKeyValuePair];
+        editVC.delegate = self;
+        [self presentViewController:[[UINavigationController alloc] initWithRootViewController:editVC] animated:YES completion:nil];
     } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Export"]) {
         UIActivityViewController *activityVC = [[UIActivityViewController alloc] initWithActivityItems:@[[self.dictionaryRepresentation description]] applicationActivities:nil];
         [self presentViewController:activityVC animated:YES completion:nil];
