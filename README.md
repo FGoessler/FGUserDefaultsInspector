@@ -20,7 +20,7 @@ UINavigationController.
 
 iOS7+, although it should run under iOS6 but it's not tested there.
 
-The search bar is only available under iOS8+ cause it uses teh enw UISearchController.
+The search bar is only available under iOS8+ cause it uses the new UISearchController.
 
 ## Installation
 
