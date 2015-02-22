@@ -18,7 +18,7 @@
 }
 
 - (id)value {
-    if([[[_value class] description] isEqualToString:@"__NSCFBoolean"]) {
+    if ([FGUserDefaultsFormatter isBooleanNSNumber:_value]) {
         return @(self.valueSwitch.on);
     } else if([_value isKindOfClass:[NSDate class]]) {
         return self.datePicker.date;
@@ -42,7 +42,7 @@
     self.textField = nil;
 
     /* config */
-    if([[[_value class] description] isEqualToString:@"__NSCFBoolean"]) {
+    if ([FGUserDefaultsFormatter isBooleanNSNumber:_value]) {
         self.valueSwitch = [[UISwitch alloc] init];
         self.valueSwitch.on = [_value boolValue];
         [self.contentView addSubview:self.valueSwitch];

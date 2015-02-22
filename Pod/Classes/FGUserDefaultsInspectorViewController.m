@@ -6,7 +6,7 @@
 
 @interface FGUserDefaultsInspectorViewController () <UIActionSheetDelegate, UISearchResultsUpdating, UISearchControllerDelegate, FGUserDefaultsEditViewControllerDelegate>
 @property(nonatomic, strong) NSDictionary *dictionaryRepresentation;
-@property(nonatomic, strong) NSDictionary *filteredDictionaryRepresentation;
+@property(nonatomic, strong) NSArray *processedKeys;
 @property(nonatomic) BOOL showAllKeys;
 @property(nonatomic, strong) UISearchController *searchController;
 @end
@@ -40,13 +40,12 @@
 }
 
 - (void)_updateList {
-    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     if (self.showAllKeys) {
-        self.dictionaryRepresentation = [userDefaults dictionaryRepresentation];
+        self.dictionaryRepresentation = [[NSUserDefaults standardUserDefaults] dictionaryRepresentation];
     } else {
-        self.dictionaryRepresentation = [userDefaults persistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
+        self.dictionaryRepresentation = [[NSUserDefaults standardUserDefaults] persistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
     }
-    self.filteredDictionaryRepresentation = self.dictionaryRepresentation;
+    self.processedKeys = [self.dictionaryRepresentation.allKeys sortedArrayUsingSelector:@selector(compare:)];
 
     [self.tableView reloadData];
 }
@@ -60,14 +59,18 @@
 #pragma mark table view delegate & data source
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.filteredDictionaryRepresentation.count;
+    return self.processedKeys.count;
+}
+
+- (id)keyForIndexPath:(NSIndexPath *)indexPath {
+    return self.processedKeys[(NSUInteger) indexPath.row];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
 
-    id key = self.filteredDictionaryRepresentation.allKeys[(NSUInteger) indexPath.row];
-    id value = self.filteredDictionaryRepresentation[key];
+    id key = [self keyForIndexPath:indexPath];
+    id value = self.dictionaryRepresentation[key];
 
     cell.textLabel.text = [FGUserDefaultsFormatter descriptionForObject:value];
     cell.detailTextLabel.text = [@"Key: " stringByAppendingString:[FGUserDefaultsFormatter descriptionForObject:key]];
@@ -76,8 +79,8 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    id key = self.filteredDictionaryRepresentation.allKeys[(NSUInteger) indexPath.row];
-    id value = self.filteredDictionaryRepresentation[key];
+    id key = [self keyForIndexPath:indexPath];
+    id value = self.dictionaryRepresentation[key];
     FGUserDefaultsEditViewController *editVC = [[FGUserDefaultsEditViewController alloc] initWithKey:key value:value];
     editVC.delegate = self;
     [self presentViewController:[[UINavigationController alloc] initWithRootViewController:editVC] animated:YES completion:nil];
@@ -88,20 +91,19 @@
 - (void)updateSearchResultsForSearchController:(UISearchController *)searchController {
     NSString *searchString = [[self.searchController.searchBar text] lowercaseString];
 
-    NSMutableDictionary *filtered = [[NSMutableDictionary alloc] init];
+    NSMutableArray *filteredKeys = [[NSMutableArray alloc] init];
     for(id key in self.dictionaryRepresentation) {
         if(([key respondsToSelector:@selector(containsString:)] && [[key lowercaseString] containsString:searchString]) || [searchString isEqualToString:@""]) {
-            filtered[key] = self.dictionaryRepresentation[key];
+            [filteredKeys addObject:key];
         }
     }
-    self.filteredDictionaryRepresentation = filtered;
+    self.processedKeys = [filteredKeys sortedArrayUsingSelector:@selector(compare:)];
 
     [self.tableView reloadData];
 }
 
 - (void)didDismissSearchController:(UISearchController *)searchController {
-    self.filteredDictionaryRepresentation = self.dictionaryRepresentation;
-    [self.tableView reloadData];
+    [self _updateList];
 }
 
 #pragma mark UIActionSheetDelegate
@@ -109,7 +111,8 @@
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
     if([actionSheet destructiveButtonIndex] == buttonIndex) {
         [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
-    } else {
+    } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Show only App Domain"] ||
+            [[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"Show All"]) {
         self.showAllKeys = ! self.showAllKeys;
         [self _updateList];
     }

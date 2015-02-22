@@ -4,6 +4,10 @@
 #import "FGUserDefaultsInspectorEditValueCell.h"
 
 
+static const float kDefaultCellHeight = 44.0f;
+static const float kDatePickerCellHeight = 200.0f;
+
+
 @interface FGUserDefaultsEditViewController () <FGUserDefaultsEditViewControllerDelegate>
 @property(nonatomic, strong) id value;
 @property(nonatomic, strong) id key;
@@ -43,8 +47,10 @@
     [self.tableView registerClass:[FGUserDefaultsInspectorEditValueCell class] forCellReuseIdentifier:@"editValueCell"];
 
     if(self.navigationController.viewControllers.count == 1) {
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:@selector(save)];
-        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancel)];
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave
+                                                                                               target:self action:@selector(save)];
+        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                                                              target:self action:@selector(cancel)];
     }
 }
 
@@ -90,7 +96,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    if(section == 0 && self.key) {
+    if ([self _isKeySection:section]) {
         return 1;
     } else {
         if([self.value isKindOfClass:[NSArray class]] || [self.value isKindOfClass:[NSDictionary class]]) {
@@ -102,7 +108,7 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    if(section == 0 && self.key) {
+    if ([self _isKeySection:section]) {
         return @"Key";
     } else {
         return @"Value(s)";
@@ -110,7 +116,7 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForFooterInSection:(NSInteger)section {
-    if(section == 0 && self.key) {
+    if ([self _isKeySection:section]) {
         return [FGUserDefaultsFormatter typeStringForObject:self.key];
     } else if(self.value) {
         return [FGUserDefaultsFormatter typeStringForObject:self.value];
@@ -121,16 +127,17 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell;
-    if(indexPath.section == 0 && self.key) {
+    if ([self _isKeySection:indexPath.section]) {
         cell = [tableView dequeueReusableCellWithIdentifier:@"keyCell"];
         cell.textLabel.text = [self.key description];
     } else {
         cell = [tableView dequeueReusableCellWithIdentifier:@"valueCell"];
+        cell.textLabel.text = nil;
+        cell.detailTextLabel.text = nil;
 
         if([self.value isKindOfClass:[NSArray class]]) {
             id value = self.value[(NSUInteger) indexPath.row];
             cell.textLabel.text = [FGUserDefaultsFormatter descriptionForObject:value];
-            cell.detailTextLabel.text = nil;
         } else if([self.value isKindOfClass:[NSDictionary class]]) {
             NSDictionary *dictionary = self.value;
             id key = dictionary.allKeys[(NSUInteger) indexPath.row];
@@ -138,9 +145,9 @@
             cell.textLabel.text = [FGUserDefaultsFormatter descriptionForObject:value];
             cell.detailTextLabel.text = [@"Key: " stringByAppendingString:[FGUserDefaultsFormatter descriptionForObject:key]];
         } else {
-            cell = [tableView dequeueReusableCellWithIdentifier:@"editValueCell"];
-            ((FGUserDefaultsInspectorEditValueCell *)cell).value = self.value;
-            self.valueEditCell = (FGUserDefaultsInspectorEditValueCell *) cell;
+            self.valueEditCell = [tableView dequeueReusableCellWithIdentifier:@"editValueCell"];
+            self.valueEditCell.value = self.value;
+            cell = self.valueEditCell;
         }
     }
 
@@ -148,15 +155,15 @@
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    if([self.value isKindOfClass:[NSDate class]] && (indexPath.section == 1 || !self.key)) {
-        return 200.0f;
+    if ([self.value isKindOfClass:[NSDate class]] && [self _isValuesSection:indexPath.section]) {
+        return kDatePickerCellHeight;
     } else {
-        return 44.0f;
+        return kDefaultCellHeight;
     }
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if(indexPath.section == 1 || !self.key) {
+    if ([self _isValuesSection:indexPath.section]) {
         NSUInteger index = (NSUInteger) indexPath.row;
         if([self.value isKindOfClass:[NSArray class]]) {
             id value = self.value[index];
@@ -172,6 +179,16 @@
             [self.navigationController pushViewController:recursiveEditVC animated:YES];
         }
     }
+}
+
+#pragma mark private helper methods
+
+- (BOOL)_isKeySection:(NSInteger)section {
+    return section == 0 && self.key;
+}
+
+- (BOOL)_isValuesSection:(NSInteger)section {
+    return section == 1 || (section == 0 && !self.key);
 }
 
 @end

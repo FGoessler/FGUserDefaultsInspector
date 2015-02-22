@@ -6,7 +6,7 @@
 + (NSString*)descriptionForObject:(id)object {
     if(object == nil) {
         return @"(nil)";
-    } else if([[[object class] description] isEqualToString:@"__NSCFBoolean"]) {
+    } else if ([self isBooleanNSNumber:object]) {
         return [object boolValue] ? @"true" : @"false";
     } else if([object isKindOfClass:[NSArray class]]) {
         NSMutableString *arrayString = [@"[" mutableCopy];
@@ -35,6 +35,10 @@
 
 + (NSString*)typeStringForObject:(id)object {
     return [@"Type: " stringByAppendingString:[[object class] description]];
+}
+
++ (BOOL)isBooleanNSNumber:(id)object {
+    return [[[object class] description] isEqualToString:@"__NSCFBoolean"];
 }
 
 @end
