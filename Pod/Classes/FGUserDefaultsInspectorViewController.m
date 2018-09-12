@@ -9,9 +9,30 @@
 @property(nonatomic, strong) NSArray *processedKeys;
 @property(nonatomic) BOOL showAllKeys;
 @property(nonatomic, strong) UISearchController *searchController;
+@property(nonatomic, strong) NSUserDefaults *userDefaults;
+@property(nonatomic, strong) NSString *suiteName;
 @end
 
 @implementation FGUserDefaultsInspectorViewController
+
+- (instancetype)initWithSuiteName:(NSString *)suiteName
+{
+    if (self == [super initWithNibName:nil bundle:nil]) {
+        NSParameterAssert(suiteName);
+        NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
+        _userDefaults = userDefaults ?: [NSUserDefaults standardUserDefaults];
+        _suiteName = userDefaults ? suiteName : nil;
+    }
+    return self;
+}
+
+- (instancetype)initWithNibName:(NSString * _Nullable)nibNameOrNil bundle:(NSBundle * _Nullable)nibBundleOrNil
+{
+    if (self == [super initWithNibName:nil bundle:nil]) {
+        _userDefaults = [NSUserDefaults standardUserDefaults];
+    }
+    return self;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -41,9 +62,9 @@
 
 - (void)_updateList {
     if (self.showAllKeys) {
-        self.dictionaryRepresentation = [[NSUserDefaults standardUserDefaults] dictionaryRepresentation];
+        self.dictionaryRepresentation = [self.userDefaults dictionaryRepresentation];
     } else {
-        self.dictionaryRepresentation = [[NSUserDefaults standardUserDefaults] persistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
+        self.dictionaryRepresentation = [self.userDefaults persistentDomainForName:self.suiteName ?: [NSBundle mainBundle].bundleIdentifier];
     }
     self.processedKeys = [self.dictionaryRepresentation.allKeys sortedArrayUsingSelector:@selector(compare:)];
 
@@ -52,7 +73,7 @@
 
 - (void)_showActionItems:(id)sender {
     NSString *otherButtonTitle = self.showAllKeys ? @"Show only App Domain" : @"Show All";
-    UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Abbrechen"
+    UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel"
                                          destructiveButtonTitle:@"Delete App's UserDefaults"
                                               otherButtonTitles:otherButtonTitle, @"New Entry", @"Export", nil];
     [sheet showFromBarButtonItem:sender animated:YES];
@@ -95,8 +116,7 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         id key = [self keyForIndexPath:indexPath];
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
-        [[NSUserDefaults standardUserDefaults] synchronize];
+        [self.userDefaults removeObjectForKey:key];
     }
 }
 
@@ -124,7 +144,7 @@
 
 - (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex {
     if([actionSheet destructiveButtonIndex] == buttonIndex) {
-        [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
+        [self.userDefaults removePersistentDomainForName:[NSBundle mainBundle].bundleIdentifier];
     } else if ([[actionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:@"New Entry"]) {
         FGUserDefaultsEditViewController *editVC = [[FGUserDefaultsEditViewController alloc] initToCreateNewKeyValuePair];
         editVC.delegate = self;
@@ -142,8 +162,7 @@
 #pragma mark FGUserDefaultsEditViewControllerDelegate
 
 - (void)defaultsEditVC:(FGUserDefaultsEditViewController *)editVC requestedSaveOf:(id)object atKey:(id)key {
-    [[NSUserDefaults standardUserDefaults] setObject:object forKey:key];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [self.userDefaults setObject:object forKey:key];
 }
 
 @end
