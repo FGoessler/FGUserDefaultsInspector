@@ -15,21 +15,37 @@
 
 @implementation FGUserDefaultsInspectorViewController
 
+- (instancetype)initWithStyle:(UITableViewStyle)style
+{
+    return [self initWithNibName:nil bundle:nil suiteName:nil];
+}
+
+- (instancetype)initWithCoder:(NSCoder *)coder
+{
+    return [self initWithNibName:nil bundle:nil suiteName:nil];
+}
+
 - (instancetype)initWithSuiteName:(NSString *)suiteName
 {
-    if (self == [super initWithNibName:nil bundle:nil]) {
-        NSParameterAssert(suiteName);
-        NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
-        _userDefaults = userDefaults ?: [NSUserDefaults standardUserDefaults];
-        _suiteName = userDefaults ? suiteName : nil;
-    }
-    return self;
+    NSParameterAssert(suiteName);
+    return [self initWithNibName:nil bundle:nil suiteName:suiteName];
 }
 
 - (instancetype)initWithNibName:(NSString * _Nullable)nibNameOrNil bundle:(NSBundle * _Nullable)nibBundleOrNil
 {
+    return [self initWithNibName:nil bundle:nil suiteName:nil];
+}
+
+- (instancetype)initWithNibName:(NSString * _Nullable)nibNameOrNil bundle:(NSBundle * _Nullable)nibBundleOrNil suiteName:(NSString * _Nullable)suiteName
+{
     if (self == [super initWithNibName:nil bundle:nil]) {
-        _userDefaults = [NSUserDefaults standardUserDefaults];
+        if (suiteName) {
+            NSUserDefaults *userDefaults = [[NSUserDefaults alloc] initWithSuiteName:suiteName];
+            _userDefaults = userDefaults ?: [NSUserDefaults standardUserDefaults];
+            _suiteName = userDefaults ? suiteName : nil;
+        } else {
+            _userDefaults = [NSUserDefaults standardUserDefaults];
+        }
     }
     return self;
 }

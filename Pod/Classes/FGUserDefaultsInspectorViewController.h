@@ -12,6 +12,8 @@
 /**
  * create an VC for inspecting standardUserDefaults (called when [[FGUserDefaultsInspectorViewController alloc] init] is used)
  */
-- (instancetype)initWithNibName:(NSString * _Nullable)nibNameOrNil bundle:(NSBundle * _Nullable)nibBundleOrNil NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithNibName:(NSString * _Nullable)nibNameOrNil bundle:(NSBundle * _Nullable)nibBundleOrNil;
+
+- (instancetype)initWithNibName:(NSString * _Nullable)nibNameOrNil bundle:(NSBundle * _Nullable)nibBundleOrNil suiteName:(NSString * _Nullable)suiteName NS_DESIGNATED_INITIALIZER;
 
 @end
